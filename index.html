@@ -62,6 +62,47 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-js对象的深拷贝" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/23/js对象的深拷贝/" class="article-date">
+  <time datetime="2019-06-23T15:58:56.000Z" itemprop="datePublished">2019-06-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/23/js对象的深拷贝/">js对象的深拷贝</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在对对象进行拷贝的时候，普通的“=”操作只是将对象的内存地址拷贝了一份指向新的对象，拷贝后的引用都是指向同一个对象的实例。深拷贝就是在拷贝数据的时候，把数据的所有引用结构都拷贝一份，重新在内存中开辟出一份空间存储拷贝的数据。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj2 = <span class="built_in">JSON</span>.parse(<span class="built_in">JSON</span>.stringify(obj1))</span><br></pre></td></tr></table></figure>
+
+<p>JSON.stringfy()和JSON.parse()可以简单有效的搞定简单对象的深拷贝问题。但是这种简单粗暴的方法有其局限性。当值为undefined、function、symbol 会在转换过程中被忽略。。。所以，对象值有这三种的话用这种方法会导致属性丢失。</p>
+<p>我们要深拷贝一个数据，必须要遍历他的属性，如果它的对象的属性仍然是对象，那么就继续递归的使用这个方法。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">deepCopy</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> result = <span class="built_in">Array</span>.isArray(obj) ? [] : &#123;&#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">    <span class="keyword">if</span> (obj.hasOwnProperty(key)) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> obj[key] === <span class="string">'object'</span>) &#123;</span><br><span class="line">        result[key] = deepCopy(obj[key])</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        result[key] = obj[key]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/06/23/js对象的深拷贝/" data-id="cjx989ugr000190qxldp6czw0" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-HTML5—EventSource服务端推送事件" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/06/16/HTML5—EventSource服务端推送事件/" class="article-date">
@@ -104,7 +145,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/16/HTML5—EventSource服务端推送事件/" data-id="cjwxr86l800004lqx5yel52ux" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/16/HTML5—EventSource服务端推送事件/" data-id="cjx989ugo000090qxbw5e7qrv" class="article-share-link">Share</a>
       
       
     </footer>
@@ -153,7 +194,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/06/hello-world/" data-id="cjwxr86lb00014lqx7azh6eun" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/06/hello-world/" data-id="cjx989ugx000290qxaq7euvjo" class="article-share-link">Share</a>
       
       
     </footer>
@@ -192,6 +233,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2019/06/23/js对象的深拷贝/">js对象的深拷贝</a>
+          </li>
         
           <li>
             <a href="/2019/06/16/HTML5—EventSource服务端推送事件/">HTML5—EventSource服务端推送事件</a>
