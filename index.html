@@ -62,6 +62,76 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-js强制类型转换" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/02/js强制类型转换/" class="article-date">
+  <time datetime="2019-07-01T16:48:03.000Z" itemprop="datePublished">2019-07-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/02/js强制类型转换/">js强制类型转换</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在javascript中，显式类型转换是这样的；</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> num = <span class="built_in">Number</span>(<span class="string">'1'</span>)</span><br><span class="line"><span class="keyword">var</span> a = (<span class="number">1</span>).toString()</span><br></pre></td></tr></table></figure>
+
+<p>不过数字也可以隐式的被转换为字符串：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="number">1</span> + <span class="string">''</span></span><br></pre></td></tr></table></figure>
+
+<p>javascript的很多隐式转换经常会让人摸不着头脑，javascript的使用重载，会根据运算符如何被调用来替换运算符的行为。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">++[[]][+[]]+[+[]] <span class="comment">// '10'</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="转为String"><a href="#转为String" class="headerlink" title="转为String"></a>转为String</h2><p>javascript使用的二元运算符将两个值连在一起，当javascript尝试将对象转换为字符串时，首先会调用toString()方法，如果toString()不能返回基础类型的值，它会被推给valueOf()函数，如果valueOf()函数也不能返回一个基础类型的值，Javascript会抛出一个TypeError异常。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> s = <span class="string">''</span> + <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="转为数字"><a href="#转为数字" class="headerlink" title="转为数字"></a>转为数字</h2><p>一元运算符的职责是将运算符后的操作数转为数字。这里与字符串的转换过程相反，会先调用valueOf()然后调用toString()</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> s = + <span class="string">'10'</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="复杂的强转"><a href="#复杂的强转" class="headerlink" title="复杂的强转"></a>复杂的强转</h2><p>现在我们回到上方那个复杂的强转来分析</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">++[[]][+[]]+[+[]] <span class="comment">//'10'</span></span><br></pre></td></tr></table></figure>
+
+<p>首先：[[]] =&gt; [Array[0]], [+[]] =&gt; [0]，合起来就是++[[]][0]，本质上就是嵌套的数组被索引0被访问，返回时左边的的一元操作符将其加1，使其变为一个数字。然后这连个值进行合并，由于左边的操作符使数字，右边的是数组，这种组合会被串联，而不是求和：1 + [0] =&gt; ‘10’</p>
+<h2 id="转为布尔值"><a href="#转为布尔值" class="headerlink" title="转为布尔值"></a>转为布尔值</h2><p>使用Boolean()方法可以强制转换任何值为boolean类型，除了以下六个值，其他都自动转为true：</p>
+<ul>
+<li>undefined</li>
+<li>null</li>
+<li>-0</li>
+<li>+0</li>
+<li>NaN</li>
+<li>‘’</li>
+</ul>
+<p>所有对象的布尔值都是true，甚至连false对应的布尔值对象也是true</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Boolean</span>(<span class="keyword">new</span> <span class="built_in">Boolean</span>(<span class="literal">false</span>)) <span class="comment">// true</span></span><br><span class="line"><span class="built_in">Boolean</span>([]) <span class="comment">// true</span></span><br><span class="line"><span class="built_in">Boolean</span>(&#123;&#125;) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="复杂案例解析"><a href="#复杂案例解析" class="headerlink" title="复杂案例解析"></a>复杂案例解析</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[!+[]+!+[]+!+[]] <span class="comment">// [3]</span></span><br></pre></td></tr></table></figure>
+
+<p>一元运算符可以把空数组转成0，逻辑非运算符把0转成true，等式变成true + true + true，二元运算符号把这些true连着一起，把他们转为数字，就变成了1 + 1 + 1，得到3</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/02/js强制类型转换/" data-id="cjxm3o0gq0002ufqxf9kz29hd" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-js对象的深拷贝" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/06/23/js对象的深拷贝/" class="article-date">
@@ -93,7 +163,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/23/js对象的深拷贝/" data-id="cjx989ugr000190qxldp6czw0" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/23/js对象的深拷贝/" data-id="cjxm3o0go0001ufqxzaj85gt8" class="article-share-link">Share</a>
       
       
     </footer>
@@ -145,7 +215,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/16/HTML5—EventSource服务端推送事件/" data-id="cjx989ugo000090qxbw5e7qrv" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/16/HTML5—EventSource服务端推送事件/" data-id="cjxm3o0ge0000ufqxppxsbyyr" class="article-share-link">Share</a>
       
       
     </footer>
@@ -194,7 +264,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/06/hello-world/" data-id="cjx989ugx000290qxaq7euvjo" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/06/hello-world/" data-id="cjxm3o0gr0003ufqxpyhag8x7" class="article-share-link">Share</a>
       
       
     </footer>
@@ -222,7 +292,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li></ul>
     </div>
   </div>
 
@@ -233,6 +303,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2019/07/02/js强制类型转换/">js强制类型转换</a>
+          </li>
         
           <li>
             <a href="/2019/06/23/js对象的深拷贝/">js对象的深拷贝</a>
