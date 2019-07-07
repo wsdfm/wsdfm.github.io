@@ -62,6 +62,55 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-使用vue-bus实现跨组件通讯" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/08/使用vue-bus实现跨组件通讯/" class="article-date">
+  <time datetime="2019-07-07T17:47:55.000Z" itemprop="datePublished">2019-07-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/08/使用vue-bus实现跨组件通讯/">使用vue-bus实现跨组件通讯</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="EventBus简介"><a href="#EventBus简介" class="headerlink" title="EventBus简介"></a>EventBus简介</h2><p>EventBus 又称为事件总线。在Vue中可以使用 EventBus 来作为沟通桥梁的概念，就像是所有组件共用相同的事件中心，可以向该中心注册发送事件或接收事件，所以组件都可以上下平行地通知其他组件。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vue-bus.js</span></span><br><span class="line"><span class="keyword">const</span> install = <span class="function"><span class="keyword">function</span> (<span class="params">Vue</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> Bus = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">    methods: &#123;</span><br><span class="line">      emit(event, ...arg) &#123;</span><br><span class="line">        <span class="keyword">this</span>.$emit(event, ...arg)</span><br><span class="line">      &#125;,</span><br><span class="line">      on(event, callback) &#123;</span><br><span class="line">        <span class="keyword">this</span>.$on(event, callback)</span><br><span class="line">      &#125;,</span><br><span class="line">      off(event, callback) &#123;</span><br><span class="line">        <span class="keyword">this</span>.$off(event, callback)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">  Vue.prototype.$bus = Bus</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> install</span><br></pre></td></tr></table></figure>
+
+<p>在main.js中使用组件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> VueBus <span class="keyword">from</span> <span class="string">'./vue-bus'</span></span><br><span class="line">Vue.use(VueBus)</span><br></pre></td></tr></table></figure>
+
+<p>使用：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//(无关代码省略)</span></span><br><span class="line"><span class="comment">// a.vue</span></span><br><span class="line"><span class="keyword">this</span>.$bus.emit(<span class="string">'add'</span>, n)</span><br><span class="line"></span><br><span class="line"><span class="comment">// b.js</span></span><br><span class="line">methods: &#123;</span><br><span class="line">  add(n) &#123;</span><br><span class="line">    <span class="keyword">this</span>.num += n</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br><span class="line">created() &#123;</span><br><span class="line">  <span class="keyword">this</span>.$bus.on(<span class="string">'add'</span>, <span class="keyword">this</span>.add)</span><br><span class="line">&#125;,</span><br><span class="line">beforeDestroy() &#123;</span><br><span class="line">  <span class="keyword">this</span>.$bus.off(<span class="string">'add'</span>, <span class="keyword">this</span>.add)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="注意："><a href="#注意：" class="headerlink" title="注意："></a>注意：</h4><ol>
+<li>$bus.on应该在created钩子内中使用，如果在mounted使用，可能会接受不到来自其他组件created钩子内发出的事件。</li>
+<li>使用了$bus.on，在beforeDestroy钩子里应该再使用$bus.off解除，因为组件销毁后，就没必要把监听的句柄存储在vue-bus里了。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/08/使用vue-bus实现跨组件通讯/" data-id="cjxta97si0002qnqxddtmv40d" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-js强制类型转换" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/07/02/js强制类型转换/" class="article-date">
@@ -122,7 +171,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/07/02/js强制类型转换/" data-id="cjxm3o0gq0002ufqxf9kz29hd" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/07/02/js强制类型转换/" data-id="cjxta97sk0004qnqxk1jsywvz" class="article-share-link">Share</a>
       
       
     </footer>
@@ -163,7 +212,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/23/js对象的深拷贝/" data-id="cjxm3o0go0001ufqxzaj85gt8" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/23/js对象的深拷贝/" data-id="cjxta97sj0003qnqxueikqwt4" class="article-share-link">Share</a>
       
       
     </footer>
@@ -215,7 +264,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/16/HTML5—EventSource服务端推送事件/" data-id="cjxm3o0ge0000ufqxppxsbyyr" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/16/HTML5—EventSource服务端推送事件/" data-id="cjxta97sg0001qnqx54azi7ig" class="article-share-link">Share</a>
       
       
     </footer>
@@ -264,7 +313,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/06/hello-world/" data-id="cjxm3o0gr0003ufqxpyhag8x7" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/06/hello-world/" data-id="cjxta97sd0000qnqxhod8se64" class="article-share-link">Share</a>
       
       
     </footer>
@@ -303,6 +352,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2019/07/08/使用vue-bus实现跨组件通讯/">使用vue-bus实现跨组件通讯</a>
+          </li>
         
           <li>
             <a href="/2019/07/02/js强制类型转换/">js强制类型转换</a>
