@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>单页面路由的实现 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在javascript里实现路由的方式有两种。第一种是利用急于hash的URI，这些URI#号字符开头。另一种是利用history API生成更多的URI。 hash路由URI里的hash部分原先是为了指向文档里的特定位置而设计的。因此浏览器会查找#左边的所有内容，将这部分信息发送到后端，请求一些页面内容。只有当页面到达浏览器，并且渲染之后，#右边的内容才有意义。使用hash实现路由以及改变uri">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单页面路由的实现">
+<meta property="og:url" content="http://yoursite.com/2019/07/21/单页面路由的实现/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在javascript里实现路由的方式有两种。第一种是利用急于hash的URI，这些URI#号字符开头。另一种是利用history API生成更多的URI。 hash路由URI里的hash部分原先是为了指向文档里的特定位置而设计的。因此浏览器会查找#左边的所有内容，将这部分信息发送到后端，请求一些页面内容。只有当页面到达浏览器，并且渲染之后，#右边的内容才有意义。使用hash实现路由以及改变uri">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-07-21T15:40:35.442Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="单页面路由的实现">
+<meta name="twitter:description" content="在javascript里实现路由的方式有两种。第一种是利用急于hash的URI，这些URI#号字符开头。另一种是利用history API生成更多的URI。 hash路由URI里的hash部分原先是为了指向文档里的特定位置而设计的。因此浏览器会查找#左边的所有内容，将这部分信息发送到后端，请求一些页面内容。只有当页面到达浏览器，并且渲染之后，#右边的内容才有意义。使用hash实现路由以及改变uri">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-单页面路由的实现" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/21/单页面路由的实现/" class="article-date">
+  <time datetime="2019-07-21T14:07:42.000Z" itemprop="datePublished">2019-07-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      单页面路由的实现
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在javascript里实现路由的方式有两种。第一种是利用急于hash的URI，这些URI#号字符开头。另一种是利用history API生成更多的URI。</p>
+<h2 id="hash路由"><a href="#hash路由" class="headerlink" title="hash路由"></a>hash路由</h2><p>URI里的hash部分原先是为了指向文档里的特定位置而设计的。因此浏览器会查找#左边的所有内容，将这部分信息发送到后端，请求一些页面内容。只有当页面到达浏览器，并且渲染之后，#右边的内容才有意义。<br>使用hash实现路由以及改变uri时，通常只有hash部分会被改变，hashchange事件会被触发，但它并不会向后端发送新的页面请求。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"ie=edge"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>hash路由<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#/"</span>&gt;</span>turn white<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#/blue"</span>&gt;</span>trun blue<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#/green"</span>&gt;</span>turn green<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">  </span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="class"><span class="keyword">class</span> <span class="title">Router</span> </span>&#123;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">constructor</span>() &#123;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.routes = &#123;&#125;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.currentUrl = <span class="string">''</span></span></span><br><span class="line">  &#125;</span><br><span class="line">  route(path, callback) &#123;</span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.routes[path] = callback || <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;</span></span><br><span class="line">  &#125;</span><br><span class="line">  refresh() &#123;</span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.currentUrl = location.hash.slice(<span class="number">1</span>) || <span class="string">'/'</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.routes[<span class="keyword">this</span>.currentUrl]()</span></span><br><span class="line">  &#125;</span><br><span class="line">  init() &#123;</span><br><span class="line"><span class="javascript">    <span class="built_in">window</span>.addEventListener(<span class="string">'load'</span>, <span class="keyword">this</span>.refresh.bind(<span class="keyword">this</span>), <span class="literal">false</span>)</span></span><br><span class="line"><span class="javascript">    <span class="built_in">window</span>.addEventListener(<span class="string">'hashchange'</span>, <span class="keyword">this</span>.refresh.bind(<span class="keyword">this</span>), <span class="literal">false</span>)</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="keyword">const</span> router = <span class="keyword">new</span> Router()</span></span><br><span class="line">router.init()</span><br><span class="line"><span class="javascript"><span class="keyword">var</span> content = <span class="built_in">document</span>.querySelector(<span class="string">'body'</span>)</span></span><br><span class="line"><span class="javascript"><span class="function"><span class="keyword">function</span> <span class="title">changeBgColor</span>(<span class="params">color</span>) </span>&#123;</span></span><br><span class="line">  content.style.backgroundColor = color</span><br><span class="line">&#125;</span><br><span class="line"><span class="javascript">router.route(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">  changeBgColor(<span class="string">'white'</span>)</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="javascript">router.route(<span class="string">'/blue'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">  changeBgColor(<span class="string">'blue'</span>)</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="javascript">router.route(<span class="string">'/green'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">  changeBgColor(<span class="string">'green'</span>)</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="history路由"><a href="#history路由" class="headerlink" title="history路由"></a>history路由</h2><p>History 路由是基于 HTML5 规范，在 HTML5 规范中提供了 history.pushState || history.replaceState 来进行路由控制。</p>
+<p>当你执行 history.pushState({}, null, ‘/about’) 时候，页面 url 会从 <a href="http://xxxx/" target="_blank" rel="noopener">http://xxxx/</a> 跳转到 <a href="http://xxxx/about" target="_blank" rel="noopener">http://xxxx/about</a> 可以在改变 url 的同时，并不会刷新页面。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"ie=edge"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>history<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">data-href</span>=<span class="string">"/"</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>home<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">data-href</span>=<span class="string">"/about"</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>about<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">data-href</span>=<span class="string">"/topics"</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>topics<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"content"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="class"><span class="keyword">class</span> <span class="title">Router</span> </span>&#123;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">constructor</span>() &#123;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.routes = &#123;&#125;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.currentUrl = <span class="string">''</span></span></span><br><span class="line">  &#125;</span><br><span class="line">  route(path, callback) &#123;</span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.routes[path] = callback || <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;</span></span><br><span class="line">  &#125;</span><br><span class="line">  updateView(url) &#123;</span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.currentUrl = url</span></span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.routes[<span class="keyword">this</span>.currentUrl] &amp;&amp; <span class="keyword">this</span>.routes[<span class="keyword">this</span>.currentUrl]()</span></span><br><span class="line">  &#125;</span><br><span class="line">  bindLink() &#123;</span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> allLink = <span class="built_in">document</span>.querySelectorAll(<span class="string">'a[data-href]'</span>)</span></span><br><span class="line"><span class="javascript">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>, len = allLink.length i &lt; len i++) &#123;</span></span><br><span class="line"><span class="javascript">      <span class="keyword">const</span> current = allLink[i]</span></span><br><span class="line">      current.addEventListener(</span><br><span class="line"><span class="javascript">        <span class="string">'click'</span>,</span></span><br><span class="line">        e =&gt; &#123;</span><br><span class="line">          e.preventDefault()</span><br><span class="line"><span class="javascript">          <span class="keyword">const</span> url = current.getAttribute(<span class="string">'data-href'</span>)</span></span><br><span class="line"><span class="javascript">          history.pushState(&#123;&#125;, <span class="literal">null</span>, url)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.updateView(url)</span></span><br><span class="line">        &#125;,</span><br><span class="line"><span class="javascript">        <span class="literal">false</span></span></span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  init() &#123;</span><br><span class="line"><span class="javascript">    <span class="keyword">this</span>.bindLink()</span></span><br><span class="line"><span class="javascript">    <span class="built_in">window</span>.addEventListener(<span class="string">'popstate'</span>, e =&gt; &#123;</span></span><br><span class="line"><span class="javascript">      <span class="keyword">this</span>.updateView(<span class="built_in">window</span>.location.pathname)</span></span><br><span class="line">    &#125;)</span><br><span class="line"><span class="javascript">    <span class="built_in">window</span>.addEventListener(<span class="string">'load'</span>, () =&gt; <span class="keyword">this</span>.updateView(<span class="string">'/'</span>), <span class="literal">false</span>)</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> router = <span class="keyword">new</span> Router()</span></span><br><span class="line">  router.init()</span><br><span class="line"><span class="javascript">  router.route(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">'content'</span>).innerHTML = <span class="string">'Home'</span></span></span><br><span class="line">  &#125;)</span><br><span class="line"><span class="javascript">  router.route(<span class="string">'/about'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">'content'</span>).innerHTML = <span class="string">'About'</span></span></span><br><span class="line">  &#125;)</span><br><span class="line"><span class="javascript">  router.route(<span class="string">'/topics'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">'content'</span>).innerHTML = <span class="string">'Topics'</span></span></span><br><span class="line">  &#125;)</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/21/单页面路由的实现/" data-id="cjyd5jpki0003buqxszbq2wll" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/07/22/观察者模式/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          观察者模式
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/08/使用vue-bus实现跨组件通讯/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">使用vue-bus实现跨组件通讯</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/07/22/观察者模式/">观察者模式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/21/单页面路由的实现/">单页面路由的实现</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/08/使用vue-bus实现跨组件通讯/">使用vue-bus实现跨组件通讯</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/02/js强制类型转换/">js强制类型转换</a>
+          </li>
+        
+          <li>
+            <a href="/2019/06/23/js对象的深拷贝/">js对象的深拷贝</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
