@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>手写call、apply、bind函数 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="call 的实现 1234567891011Function.prototype.myCall = function(context) &amp;#123;  if (typeof this !== &apos;function&apos;) &amp;#123;    throw new TypeError(&apos;Error&apos;)  &amp;#125;  context = context || window  context.fn = th">
+<meta property="og:type" content="article">
+<meta property="og:title" content="手写call、apply、bind函数">
+<meta property="og:url" content="http://yoursite.com/2019/07/29/手写call、apply、bind函数/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="call 的实现 1234567891011Function.prototype.myCall = function(context) &amp;#123;  if (typeof this !== &apos;function&apos;) &amp;#123;    throw new TypeError(&apos;Error&apos;)  &amp;#125;  context = context || window  context.fn = th">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-07-28T17:11:15.744Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="手写call、apply、bind函数">
+<meta name="twitter:description" content="call 的实现 1234567891011Function.prototype.myCall = function(context) &amp;#123;  if (typeof this !== &apos;function&apos;) &amp;#123;    throw new TypeError(&apos;Error&apos;)  &amp;#125;  context = context || window  context.fn = th">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-手写call、apply、bind函数" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/29/手写call、apply、bind函数/" class="article-date">
+  <time datetime="2019-07-28T16:52:02.000Z" itemprop="datePublished">2019-07-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      手写call、apply、bind函数
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>call 的实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Function</span>.prototype.myCall = <span class="function"><span class="keyword">function</span>(<span class="params">context</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span> !== <span class="string">'function'</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">'Error'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  context = context || <span class="built_in">window</span></span><br><span class="line">  context.fn = <span class="keyword">this</span></span><br><span class="line">  <span class="keyword">const</span> args = [...arguments].slice(<span class="number">1</span>)</span><br><span class="line">  <span class="keyword">const</span> result = context.fn(...args)</span><br><span class="line">  <span class="keyword">delete</span> context.fn</span><br><span class="line">  <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>apply的实现跟call大同小异</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Function</span>.prototype.myApply = <span class="function"><span class="keyword">function</span>(<span class="params">context</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span> !== <span class="string">'function'</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">'Error'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  context = context || <span class="built_in">window</span></span><br><span class="line">  context.fn = <span class="keyword">this</span></span><br><span class="line">  <span class="keyword">let</span> result</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">arguments</span>[<span class="number">1</span>]) &#123;</span><br><span class="line">    result = context.fn(...arguments[<span class="number">1</span>])</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    result = context.fn()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">delete</span> context.fn</span><br><span class="line">  <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>bind的实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Function</span>.prototype.myBind = <span class="function"><span class="keyword">function</span>(<span class="params">context</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span> !== <span class="string">'function'</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">'Error'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> _this = <span class="keyword">this</span></span><br><span class="line">  <span class="keyword">const</span> args = [...arguments].slice(<span class="number">1</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">F</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span> <span class="keyword">instanceof</span> F) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> _this(...args, ...arguments)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> _this.apply(context, args.concat(...arguments))</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/29/手写call、apply、bind函数/" data-id="cjyn80ozg00068tqxix230vw8" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/07/22/观察者模式/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">观察者模式</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/07/29/手写call、apply、bind函数/">手写call、apply、bind函数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/22/观察者模式/">观察者模式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/21/单页面路由的实现/">单页面路由的实现</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/08/使用vue-bus实现跨组件通讯/">使用vue-bus实现跨组件通讯</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/02/js强制类型转换/">js强制类型转换</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
